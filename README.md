@@ -27,7 +27,7 @@ elastic-smart-home-ingest [options]
 ### Options
 
 - `--help` / `-h`: Output command line help
-- `--version` / `-v`: Output pacakge version
+- `--version` / `-v`: Output package version
 - `--yes` / `-y`: Don't query for already configured options
 - `--poll`: Continuously poll for new data
 
