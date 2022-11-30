@@ -8,7 +8,7 @@ Currently only an Elasticsearch instance hosted on [Elastic Cloud](https://www.e
 
 Currently only the following smart home manufacturers are supported:
 
--  [Netatmo Weather Station](https://www.netatmo.com/weather/weatherstation)
+- [Netatmo Weather Station](https://www.netatmo.com/weather/weatherstation)
 
 ## Installation
 
@@ -31,7 +31,7 @@ elastic-smart-home-ingest [options]
 - `--yes` / `-y`: Don't query for already configured options
 - `--poll`: Continuously poll for new data
 
-By default, running `elastic-smart-home-ingest` will igenst all historical data and exist once it's done indexing.
+By default, running `elastic-smart-home-ingest` will ingest all historical data and exist once it's done indexing.
 You can re-run this command at any time and it will only ingest new data not already ingested.
 If you enable polling mode (`--poll`), the tool will not exist, but will instead continuously poll for new data.
 
