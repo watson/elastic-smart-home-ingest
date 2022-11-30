@@ -6,25 +6,34 @@ Ingest data from your smart home devices into Elasticsearch.
 
 Currently only an Elasticsearch instance hosted on [Elastic Cloud](https://www.elastic.co/cloud) is supported.
 
-Currently only the following smart home manufacturers are supported
+Currently only the following smart home manufacturers are supported:
 
 -  [Netatmo Weather Station](https://www.netatmo.com/weather/weatherstation)
 
+## Installation
+
+Install module globally:
+
+```sh
+npm install elastic-smart-home-ingest -g
+```
+
 ## Usage
 
-Ingenst all your historical data:
-
-```
-npx elastic-smart-home-ingest
+```sh
+elastic-smart-home-ingest [options]
 ```
 
-This command will exist once it's done indexing. You can re-run this command at any time and it will only ingest new data not already ingested.
+### Options
 
-To keep the comamnd running for continues ingestion of new data as it's being generated, supply the `--watch` flag:
+- `--help` / `-h`: Output command line help
+- `--version` / `-v`: Output pacakge version
+- `--yes` / `-y`: Don't query for already configured options
+- `--poll`: Continuously poll for new data
 
-```
-npx elastic-smart-home-ingest -- --watch
-```
+By default, running `elastic-smart-home-ingest` will igenst all historical data and exist once it's done indexing.
+You can re-run this command at any time and it will only ingest new data not already ingested.
+If you enable polling mode (`--poll`), the tool will not exist, but will instead continuously poll for new data.
 
 ## Config
 

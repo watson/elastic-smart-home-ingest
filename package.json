@@ -19,8 +19,10 @@
   "homepage": "https://github.com/watson/elastic-smart-home-ingest#readme",
   "dependencies": {
     "@elastic/elasticsearch": "8.5.x",
-    "dotenv": "^16.0.3",
-    "netatmo": "^2.4.0"
+    "conf": "^10.2.0",
+    "enquirer": "^2.3.6",
+    "netatmo": "^2.4.0",
+    "optimist": "^0.6.1"
   },
   "devDependencies": {
     "standard": "^17.0.0"

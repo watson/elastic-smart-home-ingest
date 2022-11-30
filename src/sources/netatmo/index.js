@@ -1,25 +1,20 @@
 'use strict'
 
 const { setTimeout } = require('timers/promises')
-const config = require('../../config')
+const { config: { netatmo: config } } = require('../../config')
 const es = require('../../es')
 const Netatmo = require('./netatmo')
 
-const netatmo = new Netatmo({
-  client_id: config.NETATMO_CLIENT_ID,
-  client_secret: config.NETATMO_CLIENT_SECRET,
-  username: config.NETATMO_USERNAME,
-  password: config.NETATMO_PASSWORD
-})
+const netatmo = new Netatmo(config)
 
-module.exports = async function ingest () {
+module.exports = async function ingest ({ poll = false } = {}) {
   console.log('Fetching Netatmo Weather Station data...')
   const devices = await netatmo.getStationsData()
   await ingestDevice(devices[0]) // TODO: Support multiple Weather Stations
   console.log('Sucessfully ingested all Netatmo measurements!')
-  if (config.WATCH_MODE) {
-    console.log(`Wating ${config.NETATMO_POLL_INTERVAL}ms for new Netatmo measurements...`)
-    await setTimeout(config.NETATMO_POLL_INTERVAL)
+  if (poll) {
+    console.log(`Wating ${config.pollIntervalMinutes} minutes for new Netatmo measurements...`)
+    await setTimeout(config.pollIntervalMinutes * 60 * 1000)
     await ingest()
   }
 }
@@ -34,13 +29,13 @@ async function ingestDevice (device) {
 async function ingestModule (device, module, start = null) {
   start = start ?? getNextStartDate(await getLastMeasurementTimestamp(module))
 
-  console.log(`Fetching batch of ${config.NETATMO_MEASUREMENTS_PER_BATCH} measurements for ${module.module_name} starting ${start.toISOString()}...`)
+  console.log(`Fetching batch of ${config.measurementsPerBatch} measurements for ${module.module_name} starting ${start.toISOString()}...`)
 
   // Get batch of measurements from Netatmo
   const measurements = await netatmo.getMeasure({
     device_id: device._id,
     module_id: module._id,
-    size: config.NETATMO_MEASUREMENTS_PER_BATCH,
+    size: config.measurementsPerBatch,
     scale: 'max',
     type: module.data_type,
     date_begin: start,
@@ -60,11 +55,11 @@ async function ingestModule (device, module, start = null) {
   // Store fetched batch in Elasticsearch
   abortOnESBulkError(await es.bulk({
     refresh: true,
-    operations: dataset.flatMap(doc => [{ index: { _index: config.ES_NETATMO_MEASUREMENTS_INDEX } }, doc])
+    operations: dataset.flatMap(doc => [{ index: { _index: config.esMeasurementsIndex } }, doc])
   }))
 
   // If the current batch contains exactly the requested number of measurements, there might be more waiting. If so, queue the next fetch
-  if (measurementsInBatch === config.NETATMO_MEASUREMENTS_PER_BATCH) {
+  if (measurementsInBatch === config.measurementsPerBatch) {
     const lastTimestamp = dataset[dataset.length - 1].timestamp
     await ingestModule(device, module, getNextStartDate(lastTimestamp))
   } else {
@@ -100,7 +95,7 @@ function processMeasurements (device, module, measurements) {
 async function getLastMeasurementTimestamp (module) {
   console.log(`Finding latest recorded meaurement for ${module.module_name}...`)
   return (await es.search({
-    index: config.ES_NETATMO_MEASUREMENTS_INDEX,
+    index: config.esMeasurementsIndex,
     size: 1,
     query: {
       term: {
