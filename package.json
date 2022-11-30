@@ -1,0 +1,28 @@
+{
+  "name": "elastic-smart-home-ingest",
+  "version": "0.0.0",
+  "description": "Ingest data from your smart home devices into Elasticsearch",
+  "bin": "scripts/ingest.js",
+  "scripts": {
+    "test": "standard",
+    "ingest": "node scripts/ingest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/watson/elastic-smart-home-ingest.git"
+  },
+  "author": "Thomas Watson <w@tson.dk> (https://wa.tson.dk/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/watson/elastic-smart-home-ingest/issues"
+  },
+  "homepage": "https://github.com/watson/elastic-smart-home-ingest#readme",
+  "dependencies": {
+    "@elastic/elasticsearch": "8.5.x",
+    "dotenv": "^16.0.3",
+    "netatmo": "^2.4.0"
+  },
+  "devDependencies": {
+    "standard": "^17.0.0"
+  }
+}
