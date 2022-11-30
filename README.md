@@ -24,6 +24,8 @@ npm install elastic-smart-home-ingest -g
 elastic-smart-home-ingest [options]
 ```
 
+When you run `elastic-smart-home-ingest` the first time, you'll be guided through the setup process.
+
 ### Options
 
 - `--help` / `-h`: Output command line help
