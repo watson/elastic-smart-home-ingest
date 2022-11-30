@@ -1,6 +1,6 @@
 {
   "name": "elastic-smart-home-ingest",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Ingest data from your smart home devices into Elasticsearch",
   "bin": "scripts/ingest.js",
   "scripts": {
