@@ -10,6 +10,7 @@ const optimist = require('optimist')
   .describe('version', 'show version')
   .describe('yes', `don't query for already configured options`)
   .describe('poll', 'continuously poll for new data')
+  .describe('show-env', 'list all supported environment variables')
   .default({ poll: false, yes: false })
 
 const { argv } = optimist
@@ -25,10 +26,15 @@ if (argv.version) {
   process.exit()
 }
 
-const { init: initConfig, config } = require('../src/config')
+const conf = require('../src/config')
+
+if (argv['show-env']) {
+  console.log(conf.env.join('\n'))
+  process.exit()
+}
 
 ;(async () => {
-  await initConfig({ skip: argv.yes })
+  await conf.init({ skip: argv.yes })
 
   const netatmo = require('../src/sources/netatmo')
 
@@ -40,11 +46,11 @@ const { init: initConfig, config } = require('../src/config')
       break
     } catch (err) {
       console.error(err.stack)
-      if (retries > config.numberOfRetries) {
+      if (retries > conf.config.numberOfRetries) {
         console.error('The above error occurred during ingestion! Max number of retries reached, aborting...')
         process.exit(1)
       } else {
-        console.error(`The above error occurred during ingestion! Retrying (${++retries}/${config.numberOfRetries})...`)
+        console.error(`The above error occurred during ingestion! Retrying (${++retries}/${conf.config.numberOfRetries})...`)
       }
     }
   }

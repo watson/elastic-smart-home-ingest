@@ -7,44 +7,63 @@ const netatmo = require('./sources/netatmo/config')
 const config = new Conf()
 let skip = false
 
-exports.config = {};
+module.exports = {
+  _initialized: false,
+  _config: {},
 
-exports.init = async function (options) {
-  skip = options.skip ?? false
-
-  exports.config.es = await prompt(preparePrompts([
-    {
-      type: 'input',
-      name: 'cloudId',
-      message: 'Elastic cloud id?'
-    },
-    {
-      type: 'password',
-      name: 'apiKey',
-      message: 'Elasticsearch API key?'
+  get config () {
+    if (!this._initialized) {
+      throw new Error('Config is not ready. Please run `init` before accessing config!')
     }
-  ], { prefix: 'es' }))
+    return this._config
+  },
 
-  exports.config.numberOfRetries = (await prompt(preparePrompt({
-    type: 'numeral',
-    name: 'numberOfRetries',
-    message: 'Allowed number of ingest retries in case of failures before aborting?',
-    initial: 10,
-    validate (value) {
-      return value < 1 ? 'Enter value larger than 1' : true
+  get env () {
+    return ['ES_CLOUD_ID', 'ES_API_KEY', 'NUMBER_OF_RETRIES'].concat(netatmo.map((p) => p.env))
+  },
+
+  async init (options) {
+    skip = options.skip ?? false
+
+    this._config.es = await prompt(preparePrompts([
+      {
+        type: 'input',
+        name: 'cloudId',
+        env: '',
+        message: 'Elastic cloud id?'
+      },
+      {
+        type: 'password',
+        name: 'apiKey',
+        env: 'ES_API_KEY',
+        message: 'Elasticsearch API key?'
+      }
+    ], { prefix: 'es' }))
+
+    this._config.numberOfRetries = (await prompt(preparePrompt({
+      type: 'numeral',
+      name: 'numberOfRetries',
+      env: 'NUMBER_OF_RETRIES',
+      message: 'Allowed number of ingest retries in case of failures before aborting?',
+      initial: 10,
+      validate (value) {
+        return value < 1 ? 'Enter value larger than 1' : true
+      }
+    }))).numberOfRetries
+
+    this._config.netatmo = await prompt(preparePrompts(netatmo, { prefix: 'netatmo' }))
+
+    this._config.save = (await prompt(preparePrompt({
+      type: 'confirm',
+      name: 'save',
+      message: 'Save answers?',
+    }))).save
+
+    this._initialized = true
+
+    if (this._config.save) {
+      config.set(this._config)
     }
-  }))).numberOfRetries
-
-  exports.config.netatmo = await prompt(preparePrompts(netatmo, { prefix: 'netatmo' }))
-
-  exports.config.save = (await prompt(preparePrompt({
-    type: 'confirm',
-    name: 'save',
-    message: 'Save answers?',
-  }))).save
-
-  if (exports.config.save) {
-    config.set(exports.config)
   }
 }
 
@@ -56,7 +75,12 @@ function preparePrompts (prompts, options) {
 }
 
 function preparePrompt (prompt, { prefix = null } = {}) {
-  prompt.initial = (prefix ? config.store[prefix]?.[prompt.name] : config.store[prompt.name]) ?? prompt.initial
+  prompt.initial = process.env[prompt.env] ??
+    (prefix ? config.store[prefix]?.[prompt.name] : config.store[prompt.name]) ??
+    prompt.initial
   prompt.skip = skip && prompt.initial !== undefined ? true : false
+
+  delete prompt.env
+
   return prompt
 }
