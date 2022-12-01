@@ -30,7 +30,7 @@ When you run `elastic-smart-home-ingest` the first time, you'll be guided throug
 
 - `--help` / `-h`: Output command line help
 - `--version` / `-v`: Output package version
-- `--yes` / `-y`: Don't query for already configured options
+- `--yes` / `-y`: Don't query for already configured options (useful for non-interactive mode)
 - `--poll`: Continuously poll for new data
 
 By default, running `elastic-smart-home-ingest` will ingest all historical data and exist once it's done indexing.
