@@ -7,15 +7,15 @@ const Netatmo = require('./netatmo')
 
 const netatmo = new Netatmo(config)
 
-module.exports = async function ingest ({ poll = false } = {}) {
+module.exports = async function ingest (options = { poll: false }) {
   console.log('Fetching Netatmo Weather Station data...')
   const devices = await netatmo.getStationsData()
   await ingestDevice(devices[0]) // TODO: Support multiple Weather Stations
   console.log('Sucessfully ingested all Netatmo measurements!')
-  if (poll) {
+  if (options.poll === true) {
     console.log(`Wating ${config.pollIntervalMinutes} minutes for new Netatmo measurements...`)
     await setTimeout(config.pollIntervalMinutes * 60 * 1000)
-    await ingest()
+    await ingest(options)
   }
 }
 
