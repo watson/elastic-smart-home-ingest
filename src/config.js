@@ -56,7 +56,7 @@ module.exports = {
     this._config.save = (await prompt(preparePrompt({
       type: 'confirm',
       name: 'save',
-      message: 'Save answers?',
+      message: 'Save answers?'
     }))).save
 
     this._initialized = true
@@ -78,7 +78,7 @@ function preparePrompt (prompt, { prefix = null } = {}) {
   prompt.initial = process.env[prompt.env] ??
     (prefix ? config.store[prefix]?.[prompt.name] : config.store[prompt.name]) ??
     prompt.initial
-  prompt.skip = skip && prompt.initial !== undefined ? true : false
+  prompt.skip = !!(skip && prompt.initial !== undefined)
 
   delete prompt.env
 

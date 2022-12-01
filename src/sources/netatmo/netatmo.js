@@ -4,8 +4,6 @@ const { setTimeout } = require('timers/promises')
 const { EventEmitter } = require('events')
 const _Netatmo = require('netatmo')
 
-const WARNING_THRESHOLD = 10
-
 module.exports = class Netatmo extends EventEmitter {
   #lastNatatmoRequest = 0
   #client = null
