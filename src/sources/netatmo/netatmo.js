@@ -8,17 +8,13 @@ const WARNING_THRESHOLD = 10
 
 module.exports = class Netatmo extends EventEmitter {
   #lastNatatmoRequest = 0
-  #errorsSinceLastSuccessfulRequest = 0
   #client = null
 
   constructor (...args) {
     super()
     this.#client = new _Netatmo(...args)
     this.#client.on('warning', (err) => {
-      console.warn('NETATMO WARNING:', err.message)
-      if (++this.#errorsSinceLastSuccessfulRequest === WARNING_THRESHOLD) {
-        throw new Error(`Reached Netatmo warning threshold of ${WARNING_THRESHOLD} warnings since last successfull request`)
-      }
+      this.emit('error', err)
     })
     this.#client.on('error', (err) => {
       this.emit('error', err)
@@ -30,7 +26,6 @@ module.exports = class Netatmo extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.#client.getStationsData(...args, (err, result) => {
         if (err) return reject(err)
-        this.#errorsSinceLastSuccessfulRequest = 0
         resolve(result)
       })
     })
@@ -41,7 +36,6 @@ module.exports = class Netatmo extends EventEmitter {
     return new Promise((resolve, reject) => {
       this.#client.getMeasure(...args, (err, result) => {
         if (err) return reject(err)
-        this.#errorsSinceLastSuccessfulRequest = 0
         resolve(result)
       })
     })

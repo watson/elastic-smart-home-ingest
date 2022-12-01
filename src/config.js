@@ -25,6 +25,16 @@ exports.init = async function (options) {
     }
   ], { prefix: 'es' }))
 
+  exports.config.numberOfRetries = (await prompt(preparePrompt({
+    type: 'numeral',
+    name: 'numberOfRetries',
+    message: 'Allowed number of ingest retries in case of failures before aborting?',
+    initial: 10,
+    validate (value) {
+      return value < 1 ? 'Enter value larger than 1' : true
+    }
+  }))).numberOfRetries
+
   exports.config.netatmo = await prompt(preparePrompts(netatmo, { prefix: 'netatmo' }))
 
   exports.config.save = (await prompt(preparePrompt({
